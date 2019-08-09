@@ -4,7 +4,7 @@
   "description": "espay Admin Template",
   "scripts": {
     "start": "webpack-dev-server --mode development --inline --progress --max_old_space_size=8192 ",
-    "build": "webpack --mode production --max-old-space-size=8192" 
+    "build": "webpack --mode production --max-old-space-size=8192"
   },
   "keywords": [
     "reactjs"
@@ -31,7 +31,7 @@
     "friendly-errors-webpack-plugin": "^1.7.0",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
-	"increase-memory-limit": "^1.0.7",
+    "increase-memory-limit": "^1.0.7",
     "mini-css-extract-plugin": "^0.4.0",
     "node-sass": "^4.8.3",
     "react": "^16.3.1",
