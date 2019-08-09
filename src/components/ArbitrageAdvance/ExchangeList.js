@@ -1,0 +1,185 @@
+/**
+ * Author : Salim Deraiya
+ * Created : 27/05/2019
+ *  Arbitrage Exchange List
+ * // chnaged by Tejas API INtegrationa and record binding
+*/
+import React, { Fragment, Component } from 'react';
+// used for connect store
+import { connect } from "react-redux";
+// used for language conversion
+import IntlMessages from 'Util/IntlMessages';
+//import actions
+import {
+    arbitrageGetExchangeList
+} from "Actions/Arbitrage";
+//added by Tejas 14/6/2019
+import JbsLoader from "Components/JbsPageLoader/JbsLoader"
+//used for display scroll bar
+import { Scrollbars } from "react-custom-scrollbars";
+import $ from 'jquery';
+
+// code added by devang parekh for handle image if not found (30-07-2019)
+const getImage = function (imageName) {
+    try {
+        return require('Assets/img/MyAccount/'+ (imageName).toLowerCase() + '.png');
+    } catch(e) {
+        return require('Assets/img/MyAccount/local.png');
+    }    
+}
+//end 
+
+//class for exchange list 
+class ExchangeList extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            exchageList: [],//exchangeData,
+            exchageListSignalRData: []
+        }
+    }
+
+    componentWillMount() {
+
+        this.isComponentActive = 1
+        this.props.arbitrageGetExchangeList({ Pair: this.props.currencyPair })
+        this.props.hubConnection.on("RecieveProviderMarketDataArbitrage", (receivedMessage) => {
+            if (this.isComponentActive === 1 && receivedMessage !== null) {
+                try {
+                    const receivedMessageData = JSON.parse(receivedMessage);
+                    if ((receivedMessageData.EventTime && this.state.exchageListSignalRData.length === 0) || (this.state.exchageListSignalRData.length !== 0 &&
+                        receivedMessageData.EventTime > this.state.exchageListSignalRData.EventTime)) {
+
+                        if (this.props.currencyPair === receivedMessageData.Parameter && typeof receivedMessageData.IsMargin !== "undefined"
+                            && receivedMessageData.IsMargin === 0) {
+
+                            const newData = receivedMessageData.Data;
+                            if (parseFloat(newData.LTP) !== 0) {
+
+                                var latestExchageList = $.extend(true, [], this.state.exchangeList);
+
+                                var findIndexPrice = latestExchageList.findIndex(exchangeDetail => parseFloat(exchangeDetail.LPType) === parseFloat(newData.LPType));
+
+                                if (findIndexPrice === -1) {
+                                    //to do if want to add new exchange into it 
+                                } else {
+
+                                    latestExchageList[findIndexPrice] = newData;
+                                    latestExchageList[findIndexPrice].UpDownBit = 1;
+
+                                }
+
+                                this.setState({ exchangeList: latestExchageList, exchageListSignalRData: receivedMessageData });
+
+                            }
+                        }
+                    }
+                } catch (error) {
+                }
+            }
+        });
+
+    }
+
+    componentWillUnmount() {
+        this.isComponentActive = 0;
+    }
+
+    componentWillReceiveProps(nextprops) {
+        if (nextprops.arbitrageExchange && nextprops.arbitrageExchange.length) {
+
+            this.setState({
+                exchangeList: nextprops.arbitrageExchange
+            })
+        } else {
+
+            this.setState({
+                exchangeList: []
+            })
+        }
+    }
+
+    changeData = (obj) => {
+    }
+
+    //renders the component
+    render() {
+        const { exchangeList } = this.state;
+        //const {exchangeListDetail} = this.props;
+        
+        return (
+            <Fragment>
+                <Scrollbars
+                    className="jbs-scroll"
+                    autoHeight
+                    autoHeightMin={this.props.autoHeightMin}
+                    autoHeightMax={this.props.autoHeightMax}
+                    autoHide
+                >
+                    {this.props.arbitrageExchangeLoading && <JbsLoader />}
+
+                    {exchangeList && exchangeList.length > 0
+                        ?
+                        exchangeList.map((list, index) => {
+
+                            var exchangeDetail = this.props.exchangeListDetail[(list.ProviderName).toLowerCase()];
+                            var LTP = exchangeDetail && exchangeDetail.LTP ? parseFloat(exchangeDetail.LTP).toFixed(this.props.priceLength) : parseFloat(list.LTP).toFixed(this.props.priceLength);
+                            var Volume = exchangeDetail && exchangeDetail.Volume ? parseFloat(exchangeDetail.Volume).toFixed(2) : parseFloat(list.Volume).toFixed(2);
+
+                            return (
+                                <div className="card exchange_data bi-logo"                                 
+                              //  style={{backgroundImage:`url('Assets/img/MyAccount/'`+ list.ProviderName + `'.png')`}}
+                               /*  style={{  
+                                    backgroundImage: "url(" + require('Assets/img/MyAccount/'+ list.ProviderName + '.png') + ")"                                
+                                  }} */
+                                key={index} onClick={() => this.changeData(list)}>
+                                    <div className="d-flex justify-content-between">
+                                    <div className="font-weight-bold">
+                                        <img
+                                            src={getImage((list.ProviderName).toLowerCase())}
+                                            //style={{ width: "65px" }}
+                                            height="25px"
+                                            width="25px"
+                                            alt={list.ProviderName}  
+                                            className="rounded-circle"
+                                            onError={(e) => {
+                                                e.target.src = require(`Assets/icon/default.png`) // default img
+                                            }}
+                                        />
+                                        {list.ProviderName}</div>   
+                                        <div><span className="text-blue font-weight-bold">
+                                            {Volume}
+
+                                        </span></div>
+                                    </div>
+                                    <div className="d-flex justify-content-between mt-5">
+                                        <div className="font-weight-bold text-danger">{LTP}</div>
+                                        <div className="font-weight-bold text-success">{LTP}</div>
+                                    </div>
+                                </div>
+                            )
+                        })
+                        :
+                        <div className="not_data_found">
+                            <IntlMessages id="apiWalletErrCode.17037" />
+                        </div>
+                    }
+                </Scrollbars>
+            </Fragment>
+        );
+    }
+}
+
+// Set Props when actions are dispatch
+const mapStateToProps = state => ({
+    arbitrageExchange: state.ArbitrageExchange.arbitrageExchange,
+    arbitrageExchangeLoading: state.ArbitrageExchange.arbitrageExchangeLoading,
+});
+
+// connect action with store for dispatch
+export default connect(
+    mapStateToProps,
+    {
+        arbitrageGetExchangeList
+    }
+)(ExchangeList);
