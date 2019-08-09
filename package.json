@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "espay Admin Template",
   "scripts": {
-    "start": "webpack-dev-server --mode development --inline --progress",
+    "start": "webpack-dev-server --mode development --inline --progress --max_old_space_size=4096",
     "build": "webpack --mode production"
   },
   "keywords": [
