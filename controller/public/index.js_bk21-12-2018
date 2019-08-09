@@ -1,0 +1,49 @@
+const express = require('express');
+const router = express.Router();
+var generateToken = require('../generateToken');
+
+// @route   post public/generateToken
+// @desc    Return jwt token
+// @access  Public
+router.post(
+    '/generateToken', (req, res) => { 
+        console.log('called');
+        //var token = req.headers['x-access-token'];
+        var referrer = req.headers['referer'];
+        console.log(referrer);
+
+        var data = req.body.data;
+        console.log(data);
+        
+        //console.log("length:",data.ua);
+        
+        /* if(data.ua){
+            var token = generateToken.generateToken(data);
+            //console.log(token);
+        }
+
+        res.json(token); */
+
+        if(data.ua){
+            var resData = {};
+            var ip;
+            if (req.headers['x-forwarded-for']) {
+                ip = req.headers['x-forwarded-for'].split(",")[0].split(":")[0];
+                // ip = req.headers['x-forwarded-for'].split(":")[0];
+            } else if (req.connection && req.connection.remoteAddress) {
+                ip = req.connection.remoteAddress.split(":")[3].split(":")[0];
+            } else {
+                ip = req.ip.split(":")[0];
+            }
+            resData.ipAddress = ip;
+            resData.tokenData = generateToken.generateToken(data);
+            console.log(resData);
+        }
+
+        res.json(resData);
+    }
+);
+
+router.get('/test', (req, res) => res.json({ msg: 'Yo Works' }));
+  
+module.exports = router;
