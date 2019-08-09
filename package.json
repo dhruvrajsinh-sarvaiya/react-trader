@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "espay Admin Template",
   "scripts": {
-    "start": "webpack-dev-server --mode development --inline --progress --max_old_space_size=4096",
-    "build": "webpack --mode production --max-old-space-size=4096" 
+    "start": "webpack-dev-server --mode development --inline --progress --max_old_space_size=8192 ",
+    "build": "webpack --mode production --max-old-space-size=8192" 
   },
   "keywords": [
     "reactjs"
