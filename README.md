@@ -48,13 +48,13 @@ This project is licensed under the MIT License
 NODE API CONFIGURATION
 
 File Path : {ROOT}\nodeapi\config\keys_dev.js
-1. mongoURI: 'mongodb://52.148.84.246/cooldex',
+1. mongoURI: 'mongodb://127.0.0.1/cool',
 - Set Mongo URL
-2. secretOrKey: 'cooldex'
+2. secretOrKey: 'cool'
 - Set Secret Or Key (DB name)
 
 File Path : {ROOT}\nodeapi\config\keys_prod.js
-1. mongoURI: 'mongodb://52.148.84.246/cooldex',
+1. mongoURI: 'mongodb://127.0.0.1/cool',
 - Set Mongo URL
-2. secretOrKey: 'cooldex'
+2. secretOrKey: 'cool'
 - Set Secret Or Key (DB name)
