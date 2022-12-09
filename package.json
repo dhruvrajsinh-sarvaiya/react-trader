@@ -19,7 +19,7 @@
     "concurrently": "^3.5.1",
     "dateformat": "^3.0.3",
     "ddos": "^0.2.1",
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "express-fileupload": "^1.0.0",
     "express-rate-limit": "^5.0.0",
     "gravatar": "^1.6.0",
